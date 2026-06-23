@@ -1,7 +1,7 @@
-# Binaries
+# Binaries (anchored to repo root so cmd/axis-movies/ stays tracked)
 /bin/
 /dist/
-axis-movies
+/axis-movies
 
 # Local config / secrets
 config.yaml
