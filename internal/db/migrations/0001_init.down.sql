@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS movie;
+DROP TABLE IF EXISTS root_folder;

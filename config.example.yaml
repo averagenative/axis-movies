@@ -1,0 +1,18 @@
+# Axis Movies configuration. Copy to config.yaml and point AXIS_CONFIG at it,
+# or configure everything via AXIS_* environment variables (env wins over file).
+
+http_addr: ":7878"
+
+# Leave api_key empty to auto-generate an ephemeral key on each start (printed
+# to stderr). Set a stable key for real use / ecosystem integrations.
+api_key: ""
+
+database_url: "postgres://axis:axis@localhost:5432/axis_movies?sslmode=disable"
+
+log_level: "info"   # debug | info | warn | error
+log_format: "text"  # text | json
+
+# Reported as appName by GET /api/v3/system/status. Keep as "Radarr" so tools
+# that string-match the app type (Prowlarr, Overseerr, nzb360) connect cleanly.
+compat_app_name: "Radarr"
+instance_name: "Axis Movies"

@@ -1,0 +1,9 @@
+.git
+.github
+web/node_modules
+*.md
+!README.md
+dist
+bin
+tmp
+.env

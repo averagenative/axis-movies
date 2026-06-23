@@ -1,0 +1,37 @@
+# Local development stack: Axis Movies + Postgres.
+# Usage: docker compose up --build
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: axis
+      POSTGRES_PASSWORD: axis
+      POSTGRES_DB: axis_movies
+    ports:
+      - "5432:5432"
+    volumes:
+      - axis_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U axis -d axis_movies"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  axis-movies:
+    build:
+      context: .
+      args:
+        VERSION: dev
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      AXIS_HTTP_ADDR: ":7878"
+      AXIS_DATABASE_URL: "postgres://axis:axis@db:5432/axis_movies?sslmode=disable"
+      AXIS_API_KEY: "devkey0000000000000000000000000000"
+      AXIS_LOG_FORMAT: "json"
+    ports:
+      - "7878:7878"
+
+volumes:
+  axis_pgdata:
