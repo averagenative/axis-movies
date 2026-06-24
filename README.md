@@ -39,6 +39,15 @@ Run it directly against your own Postgres:
 make run   # honours AXIS_* env vars / config.yaml
 ```
 
+## Quality gate (no CI)
+
+This repo intentionally runs **no GitHub Actions** — verification is local:
+
+```
+make check          # gofmt, vet, race tests, build, golangci-lint
+make install-hooks  # optional: run `make check` automatically on git push
+```
+
 ## Configuration
 
 YAML file (via `AXIS_CONFIG`) overlaid by `AXIS_*` env vars (env wins). See

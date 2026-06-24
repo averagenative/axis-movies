@@ -9,9 +9,9 @@ Phase 0 and the entry into Phase 1.
 - [x] Postgres pool + embedded migrations
 - [x] chi router, API-key auth, `/ping`
 - [x] v3 read stubs
-- [x] Docker + compose + CI
+- [x] Docker + compose + local `make check` gate (no GitHub Actions)
 - [ ] sqlc scaffolding
-- [ ] multi-arch release workflow + GHCR
+- [ ] multi-arch release build (local/manual) + image publish
 - [ ] live-Postgres integration test
 
 ## Phase 1 entry

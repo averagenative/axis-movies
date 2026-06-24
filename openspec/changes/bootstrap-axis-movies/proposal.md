@@ -8,7 +8,8 @@ We want a reliable, container-native, mobile-friendly drop-in.
 
 ## What Changes
 - Establish the Go service foundation: config, logging, HTTP server, Postgres
-  pool, embedded migrations, API-key auth, CI, and container packaging.
+  pool, embedded migrations, API-key auth, a local `make check` quality gate
+  (no GitHub Actions, by design), and container packaging.
 - Stand up the **Radarr v3 read API** surface (initially stubbed, then DB-backed)
   as the single public contract.
 - Commit to Postgres-first storage, Prowlarr-delegated indexers, and a SvelteKit

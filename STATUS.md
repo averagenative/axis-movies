@@ -12,7 +12,8 @@
   `/indexer`, `/downloadclient`, `/qualityprofile`. Unauthenticated `/ping`.
 - `system/status` reports a Radarr-compatible identity (configurable `compat_app_name`).
 - Docker (distroless static) + docker-compose (app + Postgres).
-- CI: gofmt check, vet, race tests, build, golangci-lint, image build.
+- Local quality gate via `make check` (gofmt, vet, race tests, build, golangci-lint)
+  and an optional pre-push hook (`make install-hooks`). No GitHub Actions by design.
 
 ## What does NOT work yet
 - No real movie data — endpoints return empty/stub payloads (no DB-backed reads).

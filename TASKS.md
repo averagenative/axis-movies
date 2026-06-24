@@ -15,9 +15,9 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [x] chi router, middleware, API-key auth, `/ping`
 - [x] Radarr v3 read stubs (system/status, health, movie, rootfolder, tag, indexer, downloadclient, qualityprofile)
 - [x] Dockerfile (distroless static) + docker-compose (app + Postgres)
-- [x] CI (gofmt, vet, race tests, build, golangci-lint, image build)
+- [x] Local quality gate: `make check` + optional pre-push hook (no GitHub Actions, by design — avoids any CI cost)
 - [ ] [P] Add `sqlc` config + generate typed query layer scaffolding
-- [ ] [P] Multi-arch release workflow (goreleaser or buildx amd64+arm64) + GHCR push
+- [ ] [P] Multi-arch release build (local/manual goreleaser or buildx amd64+arm64) + image publish
 - [ ] [P] `/system/status` integration test against a live Postgres (testcontainers)
 
 ## Phase 1 — v3 API: read surface (real data)  `[ ]`
@@ -78,7 +78,7 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [ ] [P] Backup/restore, health checks, rate limiting
 - [ ] [P] OpenAPI spec generation + published docs
 - [ ] [P] Observability (metrics/tracing), e2e tests
-- [ ] [P] Tagged multi-arch release + GHCR image + install docs
+- [ ] [P] Tagged multi-arch release + published image + install docs
 
 ---
 
