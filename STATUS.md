@@ -1,31 +1,40 @@
 # Status — Axis Movies
 
-**Phase:** 0 (Foundations) — in progress
-**Updated:** 2026-06-23
+**Phase:** 1 (v3 API read surface) — in progress
+**Updated:** 2026-06-24
 
 ## What works
 - Go service builds, runs, and shuts down gracefully.
 - Config from YAML + `AXIS_*` env (env wins); ephemeral API key auto-generated.
-- Postgres connection pool (pgx/v5) + embedded golang-migrate migrations run on boot.
-- Radarr v3-compatible **read** endpoints behind API-key auth:
-  `/api/v3/system/status`, `/health`, `/movie`, `/rootfolder`, `/tag`,
-  `/indexer`, `/downloadclient`, `/qualityprofile`. Unauthenticated `/ping`.
-- `system/status` reports a Radarr-compatible identity (configurable `compat_app_name`).
+- Postgres connection pool (pgx/v5) + embedded golang-migrate migrations on boot
+  (schema v2: quality_profile, tag, expanded movie; default "Any" profile seeded).
+- **sqlc**-generated type-safe store layer (`internal/store`) over pgx.
+- DB-backed Radarr v3 endpoints behind API-key auth:
+  - `GET /movie`, `GET /movie/{id}`
+  - `GET/POST/DELETE /rootfolder` (+ `GET /rootfolder/{id}`)
+  - `GET/POST/DELETE /tag` (+ `GET /tag/{id}`)
+  - `GET /qualityprofile` (+ `/{id}`) — returns the seeded default
+  - `GET /system/status` (Radarr-compatible identity), `/health`, `/indexer`,
+    `/downloadclient`. Unauthenticated `/ping`.
+- Verified end-to-end against Postgres: CRUD round-trips, 409 on duplicate,
+  404 on missing, delete works.
 - Docker (distroless static) + docker-compose (app + Postgres).
-- Local quality gate via `make check` (gofmt, vet, race tests, build, golangci-lint)
-  and an optional pre-push hook (`make install-hooks`). No GitHub Actions by design.
+- Local `make check` gate (gofmt, vet, race tests, build, golangci-lint v2 — 0 issues)
+  + optional pre-push hook. No GitHub Actions by design.
 
 ## What does NOT work yet
-- No real movie data — endpoints return empty/stub payloads (no DB-backed reads).
-- No metadata (TMDb), no release parsing, no decision engine, no download clients,
-  no import pipeline, no notifications, no UI.
-- Job queue is not yet wired (River lands in Phase 4).
-- Not verified against a live Prowlarr/Overseerr yet (Phase 1 conformance gate).
+- Movies are read-only and the table starts empty — adding movies needs TMDb
+  metadata (Phase 2). No release parsing, decision engine, download clients,
+  import pipeline, notifications, or UI yet.
+- Job queue not wired (River lands in Phase 4).
+- `/indexer` and `/downloadclient` return empty arrays (populated in Phases 4–5).
 
 ## Known issues / notes
 - `go.mod` pulls some heavy indirect deps via golang-migrate; trim later if needed.
-- API surface is read-only; write endpoints (grab/search/queue) are Phase 5.
+- No in-repo live-Postgres integration test yet (verified manually via podman);
+  testcontainers test is an open Phase 0 task.
 
 ## Next
-Phase 1: DB-backed movie/rootfolder/tag models + real v3 read endpoints, then the
-**conformance gate** — get Prowlarr to add this as a "Radarr" application.
+**Conformance gate:** point a real Prowlarr at this instance and confirm it adds
+Axis as a "Radarr" application (system/status + qualityprofile/rootfolder/tag are
+all in place). Then Phase 2 — TMDb metadata + movie add/lookup.

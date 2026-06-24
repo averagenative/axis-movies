@@ -10,10 +10,10 @@ Phase 0 and the entry into Phase 1.
 - [x] chi router, API-key auth, `/ping`
 - [x] v3 read stubs
 - [x] Docker + compose + local `make check` gate (no GitHub Actions)
-- [ ] sqlc scaffolding
+- [x] sqlc scaffolding (`internal/store`)
 - [ ] multi-arch release build (local/manual) + image publish
 - [ ] live-Postgres integration test
 
 ## Phase 1 entry
-- [ ] DB-backed movie/rootfolder/tag models
-- [ ] Conformance gate: Prowlarr adds Axis as a "Radarr" app
+- [x] DB-backed movie/rootfolder/tag/qualityprofile models (verified vs Postgres)
+- [ ] Conformance gate: Prowlarr adds Axis as a "Radarr" app (needs live Prowlarr)

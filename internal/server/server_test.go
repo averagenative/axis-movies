@@ -60,7 +60,10 @@ func TestSystemStatusReportsCompatIdentity(t *testing.T) {
 }
 
 func TestAPIKeyViaQueryParam(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/api/v3/movie?apikey=secret", nil)
+	// Use a DB-free endpoint; this asserts the auth middleware accepts the
+	// apikey query parameter. DB-backed endpoints are covered by the live
+	// integration smoke test.
+	req := httptest.NewRequest(http.MethodGet, "/api/v3/system/status?apikey=secret", nil)
 	rr := httptest.NewRecorder()
 	testServer().ServeHTTP(rr, req)
 	if rr.Code != http.StatusOK {

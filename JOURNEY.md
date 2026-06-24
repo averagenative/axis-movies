@@ -43,3 +43,30 @@ feasibility without occupying our niche. Good reference for Go download-client a
 Torznab handling; we do not fork it. `bobarr` (TS, monolithic) and the Python
 TV tools (Medusa, SickGear) are different philosophies. The API-compat + Postgres-
 first + PWA combination is unclaimed in the non-.NET space.
+
+## 2026-06-24 — Phase 1: DB-backed read surface
+
+### Decision: sqlc for the query layer
+Adopted sqlc (pgx/v5 mode) generating `internal/store` from SQL in
+`internal/db/queries`, with the schema sourced directly from the golang-migrate
+files. Generated code is committed so building never requires the sqlc binary —
+only regenerating does. Nullable columns surface as pgtype.* and are mapped to
+plain JSON values in a small `mapping.go` layer. Trade-off accepted: a little
+pgtype verbosity in exchange for compile-time-checked queries as the surface grows.
+
+### Decision: lenient request decoding
+v3 write endpoints (rootfolder/tag create) decode JSON without
+DisallowUnknownFields. Real Radarr clients post richer objects than we read;
+rejecting unknown fields would break compatibility. Postel's law for an API-compat
+layer.
+
+### Decision: defer history/blocklist tables
+The Phase 1 task listed them, but no endpoint exposes them yet. Creating unused
+tables now is premature; they land with the grab/import phases that need them.
+
+### Scope landed
+Migration 0002 (quality_profile, tag, expanded movie, seeded "Any" profile) +
+DB-backed movie (read), rootfolder (CRUD), tag (CRUD), qualityprofile (read).
+Verified end-to-end against Postgres. The conformance gate (live Prowlarr adds
+Axis as "Radarr") now only awaits a real Prowlarr instance — the endpoints it
+checks are all serving real data.

@@ -4,18 +4,25 @@
 // clients like nzb360/LunaSea) identify the app via GET /system/status and
 // string-match appName == "Radarr" and a minimum version. Axis therefore
 // reports a Radarr-compatible appName/version by default (configurable) while
-// surfacing its true identity in the axis* fields. This is the v1 read surface;
-// write endpoints (grab/search/queue) land in Phase 5 (see TASKS.md).
+// surfacing its true identity in the axis* fields.
+//
+// Phase 1 provides the DB-backed read surface plus root-folder/tag mutation.
+// Write endpoints that drive downloads (grab/search/queue) land in Phase 5.
 package v3
 
 import (
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/averagenative/axis-movies/internal/config"
+	"github.com/averagenative/axis-movies/internal/store"
 	"github.com/averagenative/axis-movies/internal/version"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -32,28 +39,50 @@ type Deps struct {
 
 // API holds the v3 handlers.
 type API struct {
-	deps Deps
+	cfg config.Config
+	log *slog.Logger
+	q   *store.Queries
 }
 
 // New constructs the API.
-func New(deps Deps) *API { return &API{deps: deps} }
+func New(deps Deps) *API {
+	return &API{
+		cfg: deps.Config,
+		log: deps.Log,
+		q:   store.New(deps.Pool),
+	}
+}
 
 // Mount registers all v3 routes on the given router.
 func (a *API) Mount(r chi.Router) {
 	r.Get("/system/status", a.systemStatus)
 	r.Get("/health", a.emptyArray)
-	r.Get("/movie", a.emptyArray)
-	r.Get("/rootfolder", a.emptyArray)
-	r.Get("/tag", a.emptyArray)
+
+	r.Get("/movie", a.listMovies)
+	r.Get("/movie/{id}", a.getMovie)
+
+	r.Get("/rootfolder", a.listRootFolders)
+	r.Get("/rootfolder/{id}", a.getRootFolder)
+	r.Post("/rootfolder", a.createRootFolder)
+	r.Delete("/rootfolder/{id}", a.deleteRootFolder)
+
+	r.Get("/tag", a.listTags)
+	r.Get("/tag/{id}", a.getTag)
+	r.Post("/tag", a.createTag)
+	r.Delete("/tag/{id}", a.deleteTag)
+
+	r.Get("/qualityprofile", a.listQualityProfiles)
+	r.Get("/qualityprofile/{id}", a.getQualityProfile)
+
+	// Populated by Prowlarr (indexers) / configured later (download clients).
 	r.Get("/indexer", a.emptyArray)
 	r.Get("/downloadclient", a.emptyArray)
-	r.Get("/qualityprofile", a.qualityProfiles)
 }
 
 func (a *API) systemStatus(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{
-		"appName":        a.deps.Config.CompatAppName,
-		"instanceName":   a.deps.Config.InstanceName,
+		"appName":        a.cfg.CompatAppName,
+		"instanceName":   a.cfg.InstanceName,
 		"version":        compatRadarrVersion,
 		"branch":         "master",
 		"authentication": "apikey",
@@ -74,25 +103,37 @@ func (a *API) systemStatus(w http.ResponseWriter, _ *http.Request) {
 	})
 }
 
-// qualityProfiles returns a minimal default profile so clients render a usable
-// selector before the real profile engine lands in Phase 4.
-func (a *API) qualityProfiles(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, []map[string]any{
-		{
-			"id":             1,
-			"name":           "Any",
-			"upgradeAllowed": true,
-			"items":          []any{},
-		},
-	})
-}
-
 func (a *API) emptyArray(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, []any{})
 }
+
+// --- shared helpers ---
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
+}
+
+func writeError(w http.ResponseWriter, status int, msg string) {
+	writeJSON(w, status, map[string]string{"message": msg})
+}
+
+// idParam parses the {id} path parameter.
+func idParam(r *http.Request) (int64, error) {
+	return strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+}
+
+// decodeJSON decodes a JSON request body. It is deliberately lenient about
+// unknown fields, since real Radarr clients post richer objects than we read.
+func decodeJSON(r *http.Request, dst any) error {
+	return json.NewDecoder(r.Body).Decode(dst)
+}
+
+func isNotFound(err error) bool { return errors.Is(err, pgx.ErrNoRows) }
+
+// isUniqueViolation reports whether err is a Postgres unique-constraint error.
+func isUniqueViolation(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23505"
 }

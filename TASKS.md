@@ -16,18 +16,18 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [x] Radarr v3 read stubs (system/status, health, movie, rootfolder, tag, indexer, downloadclient, qualityprofile)
 - [x] Dockerfile (distroless static) + docker-compose (app + Postgres)
 - [x] Local quality gate: `make check` + optional pre-push hook (no GitHub Actions, by design — avoids any CI cost)
-- [ ] [P] Add `sqlc` config + generate typed query layer scaffolding
+- [x] [P] Add `sqlc` config + generate typed query layer scaffolding (`internal/store`)
 - [ ] [P] Multi-arch release build (local/manual goreleaser or buildx amd64+arm64) + image publish
 - [ ] [P] `/system/status` integration test against a live Postgres (testcontainers)
 
-## Phase 1 — v3 API: read surface (real data)  `[ ]`
-- [ ] [S] Domain models + migrations: movie, root_folder, quality_profile, tag, history, blocklist
-- [ ] [P] `GET/POST/PUT/DELETE /api/v3/rootfolder` (DB-backed)
-- [ ] [P] `GET/POST/DELETE /api/v3/tag`
-- [ ] [P] `GET /api/v3/movie` + `GET /api/v3/movie/{id}` (DB-backed)
-- [ ] [P] `GET /api/v3/qualityprofile` (DB-backed defaults seeded)
+## Phase 1 — v3 API: read surface (real data)  `[~]`
+- [x] [S] Domain models + migrations: movie (expanded), root_folder, quality_profile, tag (history/blocklist deferred to grab/import phases)
+- [x] [P] `GET/POST/DELETE /api/v3/rootfolder` (DB-backed, + `/{id}`)
+- [x] [P] `GET/POST/DELETE /api/v3/tag` (DB-backed, + `/{id}`)
+- [x] [P] `GET /api/v3/movie` + `GET /api/v3/movie/{id}` (DB-backed)
+- [x] [P] `GET /api/v3/qualityprofile` (+ `/{id}`); default "Any" seeded
 - [ ] [S] Pagination/sort envelope matching Radarr (`/api/v3/movie/lookup` later)
-- [ ] ✅ **Conformance gate:** Prowlarr successfully adds this as a "Radarr" app; Overseerr & nzb360 connect read-only
+- [ ] ✅ **Conformance gate:** Prowlarr successfully adds this as a "Radarr" app; Overseerr & nzb360 connect read-only *(needs a live Prowlarr — endpoints are ready)*
 
 ## Phase 2 — Metadata  `[ ]`
 - [ ] [S] TMDb client (own API key) + Postgres response cache
