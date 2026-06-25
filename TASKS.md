@@ -31,11 +31,14 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [x] ✅ **Conformance gate PASSED:** real Prowlarr v2.4.0 (blacksky) completes its "add as Radarr application" test against Axis (2026-06-25)
 - [ ] Overseerr & nzb360 connect read-only (not yet verified)
 
-## Phase 2 — Metadata  `[ ]`
-- [ ] [S] TMDb client (own API key) + Postgres response cache
-- [ ] [P] `GET /api/v3/movie/lookup?term=` (TMDb-backed search)
-- [ ] [P] `POST /api/v3/movie` (add by tmdbId), image proxy/cache
-- [ ] [P] Refresh-movie metadata job
+## Phase 2 — Metadata  `[~]`
+- [x] [S] TMDb client (own API key, `internal/tmdb`) — search + details + image URLs
+- [x] [P] `GET /api/v3/movie/lookup?term=` (TMDb-backed search)
+- [x] [P] `POST /api/v3/movie` (add by tmdbId) — fetches metadata, persists, 409 on dup
+- [ ] [P] Postgres response cache for TMDb (currently hits TMDb directly)
+- [ ] [P] Image proxy/cache (currently serves TMDb CDN `remoteUrl` directly)
+- [ ] [P] Refresh-movie metadata job (needs the job queue — Phase 4)
+- [ ] [P] Live verification against real TMDb (needs a real `AXIS_TMDB_API_KEY`)
 
 ## Phase 3 — Release parser (crown jewels)  `[ ]`
 - [ ] [S] Clean-room parser: title, year, resolution, source, codec, audio, group, edition, proper/repack, language

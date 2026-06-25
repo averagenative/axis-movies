@@ -29,16 +29,25 @@ type Config struct {
 	CompatAppName string `yaml:"compat_app_name"`
 	// InstanceName is the human-facing instance label.
 	InstanceName string `yaml:"instance_name"`
+	// TMDBAPIKey is the v3 API key for themoviedb.org metadata lookups. When
+	// empty, movie lookup/add return 503 (metadata is unavailable).
+	TMDBAPIKey string `yaml:"tmdb_api_key"`
+	// TMDBBaseURL is the TMDb API base (override for testing).
+	TMDBBaseURL string `yaml:"tmdb_base_url"`
+	// TMDBImageBaseURL is the TMDb image CDN base.
+	TMDBImageBaseURL string `yaml:"tmdb_image_base_url"`
 }
 
 func defaults() Config {
 	return Config{
-		HTTPAddr:      ":7878", // Radarr's default port, for drop-in parity.
-		DatabaseURL:   "postgres://axis:axis@localhost:5432/axis_movies?sslmode=disable",
-		LogLevel:      "info",
-		LogFormat:     "text",
-		CompatAppName: "Radarr",
-		InstanceName:  "Axis Movies",
+		HTTPAddr:         ":7878", // Radarr's default port, for drop-in parity.
+		DatabaseURL:      "postgres://axis:axis@localhost:5432/axis_movies?sslmode=disable",
+		LogLevel:         "info",
+		LogFormat:        "text",
+		CompatAppName:    "Radarr",
+		InstanceName:     "Axis Movies",
+		TMDBBaseURL:      "https://api.themoviedb.org/3",
+		TMDBImageBaseURL: "https://image.tmdb.org/t/p",
 	}
 }
 
@@ -86,6 +95,9 @@ func applyEnv(cfg *Config) {
 	setString(&cfg.LogFormat, "AXIS_LOG_FORMAT")
 	setString(&cfg.CompatAppName, "AXIS_COMPAT_APP_NAME")
 	setString(&cfg.InstanceName, "AXIS_INSTANCE_NAME")
+	setString(&cfg.TMDBAPIKey, "AXIS_TMDB_API_KEY")
+	setString(&cfg.TMDBBaseURL, "AXIS_TMDB_BASE_URL")
+	setString(&cfg.TMDBImageBaseURL, "AXIS_TMDB_IMAGE_BASE_URL")
 }
 
 func setString(dst *string, env string) {

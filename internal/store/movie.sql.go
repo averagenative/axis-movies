@@ -7,7 +7,77 @@ package store
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const createMovie = `-- name: CreateMovie :one
+INSERT INTO movie (
+    tmdb_id, title, year, monitored, title_slug, sort_title, overview,
+    status, runtime, imdb_id, path, root_folder_path, images, quality_profile_id
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+)
+RETURNING id, tmdb_id, title, year, monitored, added_at, title_slug, sort_title, overview, status, runtime, has_file, imdb_id, path, root_folder_path, images, quality_profile_id, updated_at
+`
+
+type CreateMovieParams struct {
+	TmdbID           int64
+	Title            string
+	Year             pgtype.Int4
+	Monitored        bool
+	TitleSlug        pgtype.Text
+	SortTitle        pgtype.Text
+	Overview         pgtype.Text
+	Status           pgtype.Text
+	Runtime          int32
+	ImdbID           pgtype.Text
+	Path             pgtype.Text
+	RootFolderPath   pgtype.Text
+	Images           []byte
+	QualityProfileID pgtype.Int8
+}
+
+func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie, error) {
+	row := q.db.QueryRow(ctx, createMovie,
+		arg.TmdbID,
+		arg.Title,
+		arg.Year,
+		arg.Monitored,
+		arg.TitleSlug,
+		arg.SortTitle,
+		arg.Overview,
+		arg.Status,
+		arg.Runtime,
+		arg.ImdbID,
+		arg.Path,
+		arg.RootFolderPath,
+		arg.Images,
+		arg.QualityProfileID,
+	)
+	var i Movie
+	err := row.Scan(
+		&i.ID,
+		&i.TmdbID,
+		&i.Title,
+		&i.Year,
+		&i.Monitored,
+		&i.AddedAt,
+		&i.TitleSlug,
+		&i.SortTitle,
+		&i.Overview,
+		&i.Status,
+		&i.Runtime,
+		&i.HasFile,
+		&i.ImdbID,
+		&i.Path,
+		&i.RootFolderPath,
+		&i.Images,
+		&i.QualityProfileID,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
 
 const getMovie = `-- name: GetMovie :one
 SELECT id, tmdb_id, title, year, monitored, added_at, title_slug, sort_title, overview, status, runtime, has_file, imdb_id, path, root_folder_path, images, quality_profile_id, updated_at FROM movie WHERE id = $1

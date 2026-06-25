@@ -19,6 +19,7 @@ import (
 
 	"github.com/averagenative/axis-movies/internal/config"
 	"github.com/averagenative/axis-movies/internal/store"
+	"github.com/averagenative/axis-movies/internal/tmdb"
 	"github.com/averagenative/axis-movies/internal/version"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
@@ -39,17 +40,19 @@ type Deps struct {
 
 // API holds the v3 handlers.
 type API struct {
-	cfg config.Config
-	log *slog.Logger
-	q   *store.Queries
+	cfg  config.Config
+	log  *slog.Logger
+	q    *store.Queries
+	tmdb *tmdb.Client
 }
 
 // New constructs the API.
 func New(deps Deps) *API {
 	return &API{
-		cfg: deps.Config,
-		log: deps.Log,
-		q:   store.New(deps.Pool),
+		cfg:  deps.Config,
+		log:  deps.Log,
+		q:    store.New(deps.Pool),
+		tmdb: tmdb.New(deps.Config.TMDBAPIKey, deps.Config.TMDBBaseURL, deps.Config.TMDBImageBaseURL, nil),
 	}
 }
 
@@ -68,7 +71,9 @@ func (a *API) Mount(r chi.Router) {
 	r.Get("/system/status", a.systemStatus)
 	r.Get("/health", a.emptyArray)
 
+	r.Get("/movie/lookup", a.lookupMovie)
 	r.Get("/movie", a.listMovies)
+	r.Post("/movie", a.addMovie)
 	r.Get("/movie/{id}", a.getMovie)
 
 	r.Get("/rootfolder", a.listRootFolders)

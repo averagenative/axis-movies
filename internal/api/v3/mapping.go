@@ -2,6 +2,7 @@ package v3
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/averagenative/axis-movies/internal/store"
@@ -44,6 +45,33 @@ func rawJSON(b []byte) json.RawMessage {
 		return json.RawMessage("[]")
 	}
 	return json.RawMessage(b)
+}
+
+// --- plain value -> pgtype helpers (for writes) ---
+
+func pgText(s string) pgtype.Text { return pgtype.Text{String: s, Valid: s != ""} }
+
+func pgInt4(i int32) pgtype.Int4 { return pgtype.Int4{Int32: i, Valid: i != 0} }
+
+func pgInt8(i int64) pgtype.Int8 { return pgtype.Int8{Int64: i, Valid: i != 0} }
+
+// slugify produces a URL-safe, lowercase slug from a title.
+func slugify(s string) string {
+	var b strings.Builder
+	lastDash := false
+	for _, r := range strings.ToLower(s) {
+		switch {
+		case (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9'):
+			b.WriteRune(r)
+			lastDash = false
+		default:
+			if !lastDash {
+				b.WriteByte('-')
+				lastDash = true
+			}
+		}
+	}
+	return strings.Trim(b.String(), "-")
 }
 
 // --- store model -> Radarr v3 resource shapes ---

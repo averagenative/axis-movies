@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie, error)
 	CreateRootFolder(ctx context.Context, path string) (RootFolder, error)
 	CreateTag(ctx context.Context, label string) (Tag, error)
 	DeleteRootFolder(ctx context.Context, id int64) error

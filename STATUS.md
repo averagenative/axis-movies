@@ -1,6 +1,6 @@
 # Status — Axis Movies
 
-**Phase:** 1 (v3 API read surface) — **conformance gate PASSED**
+**Phase:** 2 (TMDb metadata) — in progress (lookup + add working)
 **Updated:** 2026-06-25
 
 ## What works
@@ -22,6 +22,11 @@
   completes its "add as Radarr application" test against Axis. Required
   `GET /indexer/schema` (Torznab/Newznab, captured from real Radarr),
   `POST /indexer/test`, and an `X-Application-Version` header on all v3 responses.
+- **TMDb metadata (Phase 2)**: `internal/tmdb` client (own API key via
+  `AXIS_TMDB_API_KEY`); `GET /api/v3/movie/lookup?term=` (search) and
+  `POST /api/v3/movie` (add by tmdbId — fetches metadata, persists, 409 on dup).
+  Verified end-to-end against Postgres with a mock TMDb. Without a key,
+  lookup/add return 503.
 - Docker (distroless static) + docker-compose (app + Postgres).
 - Local `make check` gate (gofmt, vet, race tests, build, golangci-lint v2 — 0 issues)
   + optional pre-push hook. No GitHub Actions by design.
@@ -39,7 +44,7 @@
   testcontainers test is an open Phase 0 task.
 
 ## Next
-Conformance gate is cleared. **Phase 2 — TMDb metadata + movie add/lookup** so the
-library can actually fill. Note: full indexer *sync* (Prowlarr pushing indexers via
-POST/PUT/DELETE `/indexer`) is still Phase 4 — only the schema/test handshake the
-application test needs is implemented so far.
+Phase 2 remainder: TMDb response cache, image proxy, refresh job (the last needs
+the Phase 4 job queue). Plus a live check against real TMDb once `AXIS_TMDB_API_KEY`
+is set. Note: full indexer *sync* (Prowlarr pushing indexers via POST/PUT/DELETE
+`/indexer`) is still Phase 4 — only the schema/test handshake is implemented so far.

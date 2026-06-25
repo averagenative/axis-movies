@@ -15,8 +15,8 @@ install-hooks:
 
 # Local quality gate — run before committing/pushing. There is no CI; this is it.
 check: fmt-check vet test build
-	@command -v golangci-lint >/dev/null 2>&1 && golangci-lint run || \
-		echo "note: golangci-lint not installed, skipping (go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest)"
+	@if command -v golangci-lint >/dev/null 2>&1; then golangci-lint run; \
+	else echo "note: golangci-lint not installed, skipping (go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest)"; fi
 	@echo "check: OK"
 
 fmt-check:

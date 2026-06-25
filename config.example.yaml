@@ -16,3 +16,10 @@ log_format: "text"  # text | json
 # that string-match the app type (Prowlarr, Overseerr, nzb360) connect cleanly.
 compat_app_name: "Radarr"
 instance_name: "Axis Movies"
+
+# themoviedb.org metadata. Get a free v3 API key at
+# https://www.themoviedb.org/settings/api . Without it, movie lookup/add
+# return 503. The base URLs rarely need changing (override only for testing).
+tmdb_api_key: ""
+tmdb_base_url: "https://api.themoviedb.org/3"
+tmdb_image_base_url: "https://image.tmdb.org/t/p"

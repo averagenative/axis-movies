@@ -100,3 +100,27 @@ live in a production *arr stack.
 Scope note: only the schema/test handshake the *application test* needs is built.
 Actual indexer **sync** (Prowlarr POST/GET/PUT/DELETE `/api/v3/indexer`) remains
 Phase 4.
+
+## 2026-06-25 — Phase 2: TMDb metadata (lookup + add)
+
+`internal/tmdb` is a thin TMDb v3 client (search, movie details, image URLs).
+Axis brings its **own** API key (`AXIS_TMDB_API_KEY`) — it cannot use Radarr's
+`api.radarr.video` proxy. Base URLs are configurable purely so tests can point at
+a mock server.
+
+Endpoints: `GET /api/v3/movie/lookup?term=` (search → Radarr lookup shape) and
+`POST /api/v3/movie` (add by `tmdbId`: re-fetch details from TMDb rather than
+trusting the client, generate a `title-slug-<tmdbId>`, derive
+`<root>/<Title> (<year>)` path, default to the seeded quality profile, persist).
+Duplicates → 409; no key → 503.
+
+### Decision: test with a mock TMDb, not a real key
+The add path is verified by `TestAddMovieIntegration`, which runs against a real
+Postgres (gated on `AXIS_TEST_DATABASE_URL`) with an `httptest` mock TMDb server.
+This gives deterministic, key-free end-to-end coverage of search → add → list →
+duplicate. A real-key smoke test is left as a follow-up.
+
+### Deferred within Phase 2
+TMDb response caching (currently hits TMDb live), local image proxy (we serve the
+TMDb CDN `remoteUrl` directly), and the refresh-metadata job (needs the Phase 4
+job queue).
