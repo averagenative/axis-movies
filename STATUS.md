@@ -1,7 +1,7 @@
 # Status — Axis Movies
 
-**Phase:** 1 (v3 API read surface) — in progress
-**Updated:** 2026-06-24
+**Phase:** 1 (v3 API read surface) — **conformance gate PASSED**
+**Updated:** 2026-06-25
 
 ## What works
 - Go service builds, runs, and shuts down gracefully.
@@ -18,6 +18,10 @@
     `/downloadclient`. Unauthenticated `/ping`.
 - Verified end-to-end against Postgres: CRUD round-trips, 409 on duplicate,
   404 on missing, delete works.
+- **Conformance gate PASSED**: a real Prowlarr (v2.4.0, on blacksky) successfully
+  completes its "add as Radarr application" test against Axis. Required
+  `GET /indexer/schema` (Torznab/Newznab, captured from real Radarr),
+  `POST /indexer/test`, and an `X-Application-Version` header on all v3 responses.
 - Docker (distroless static) + docker-compose (app + Postgres).
 - Local `make check` gate (gofmt, vet, race tests, build, golangci-lint v2 — 0 issues)
   + optional pre-push hook. No GitHub Actions by design.
@@ -35,6 +39,7 @@
   testcontainers test is an open Phase 0 task.
 
 ## Next
-**Conformance gate:** point a real Prowlarr at this instance and confirm it adds
-Axis as a "Radarr" application (system/status + qualityprofile/rootfolder/tag are
-all in place). Then Phase 2 — TMDb metadata + movie add/lookup.
+Conformance gate is cleared. **Phase 2 — TMDb metadata + movie add/lookup** so the
+library can actually fill. Note: full indexer *sync* (Prowlarr pushing indexers via
+POST/PUT/DELETE `/indexer`) is still Phase 4 — only the schema/test handshake the
+application test needs is implemented so far.

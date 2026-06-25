@@ -70,3 +70,33 @@ DB-backed movie (read), rootfolder (CRUD), tag (CRUD), qualityprofile (read).
 Verified end-to-end against Postgres. The conformance gate (live Prowlarr adds
 Axis as "Radarr") now only awaits a real Prowlarr instance — the endpoints it
 checks are all serving real data.
+
+## 2026-06-25 — Conformance gate passed against a real Prowlarr
+
+Tested against the user's real Prowlarr v2.4.0 (linuxserver, on `blacksky`),
+running Axis + Postgres as throwaway containers on Prowlarr's `nginx-proxy`
+docker network so Prowlarr could reach it by name. Prowlarr's "add as Radarr
+application" test exercised more than system/status; iterating on each failure
+revealed the true minimum surface:
+
+1. `GET /api/v3/indexer/schema` — Prowlarr builds indexer definitions from it.
+   Captured the generic **Torznab + Newznab** schema verbatim from the real Radarr
+   on the same box and embed it (`assets/indexer_schema.json`); served as-is.
+2. `POST /api/v3/indexer/test` — Prowlarr validates the indexer it would push.
+   Phase 1 returns a no-op 200 (real indexer connectivity testing is Phase 4).
+3. **`X-Application-Version` response header** — the actual blocker. Prowlarr's
+   `TestConnection` reads the app version from this header on the indexer/test
+   response, *not* from system/status JSON. Missing header → "Failed to fetch
+   Radarr version". Radarr sets it on every response, so Axis now does too (v3
+   middleware). Confirmed by reading Prowlarr's `RadarrV3Proxy.cs` source.
+
+Result: the application test returns **HTTP 200**. Gate cleared.
+
+Aside, on-thesis: during testing Prowlarr logged
+`SQLiteException: database disk image is malformed` from its own DB — the exact
+SQLite-corruption failure mode that motivates Axis being Postgres-first, observed
+live in a production *arr stack.
+
+Scope note: only the schema/test handshake the *application test* needs is built.
+Actual indexer **sync** (Prowlarr POST/GET/PUT/DELETE `/api/v3/indexer`) remains
+Phase 4.

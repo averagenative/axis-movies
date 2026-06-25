@@ -27,7 +27,9 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [x] [P] `GET /api/v3/movie` + `GET /api/v3/movie/{id}` (DB-backed)
 - [x] [P] `GET /api/v3/qualityprofile` (+ `/{id}`); default "Any" seeded
 - [ ] [S] Pagination/sort envelope matching Radarr (`/api/v3/movie/lookup` later)
-- [ ] ✅ **Conformance gate:** Prowlarr successfully adds this as a "Radarr" app; Overseerr & nzb360 connect read-only *(needs a live Prowlarr — endpoints are ready)*
+- [x] [S] `GET /indexer/schema` (Torznab/Newznab) + `POST /indexer/test` + `X-Application-Version` header — required by the Prowlarr application test
+- [x] ✅ **Conformance gate PASSED:** real Prowlarr v2.4.0 (blacksky) completes its "add as Radarr application" test against Axis (2026-06-25)
+- [ ] Overseerr & nzb360 connect read-only (not yet verified)
 
 ## Phase 2 — Metadata  `[ ]`
 - [ ] [S] TMDb client (own API key) + Postgres response cache

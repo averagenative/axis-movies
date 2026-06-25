@@ -55,6 +55,16 @@ func New(deps Deps) *API {
 
 // Mount registers all v3 routes on the given router.
 func (a *API) Mount(r chi.Router) {
+	// Radarr sets X-Application-Version on every response; Prowlarr reads it
+	// from POST /indexer/test to learn the app version. Without it, Prowlarr's
+	// application test fails with "Failed to fetch Radarr version".
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			w.Header().Set("X-Application-Version", compatRadarrVersion)
+			next.ServeHTTP(w, req)
+		})
+	})
+
 	r.Get("/system/status", a.systemStatus)
 	r.Get("/health", a.emptyArray)
 
@@ -75,6 +85,9 @@ func (a *API) Mount(r chi.Router) {
 	r.Get("/qualityprofile/{id}", a.getQualityProfile)
 
 	// Populated by Prowlarr (indexers) / configured later (download clients).
+	r.Get("/indexer/schema", a.indexerSchema)
+	r.Post("/indexer/test", a.indexerTest)
+	r.Post("/indexer/testall", a.indexerTest)
 	r.Get("/indexer", a.emptyArray)
 	r.Get("/downloadclient", a.emptyArray)
 }

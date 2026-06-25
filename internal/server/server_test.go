@@ -59,6 +59,34 @@ func TestSystemStatusReportsCompatIdentity(t *testing.T) {
 	}
 }
 
+func TestIndexerSchemaServed(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/api/v3/indexer/schema", nil)
+	req.Header.Set("X-Api-Key", "secret")
+	rr := httptest.NewRecorder()
+	testServer().ServeHTTP(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("indexer/schema: got %d, want 200", rr.Code)
+	}
+	if b := rr.Body.Bytes(); len(b) == 0 || b[0] != '[' {
+		t.Fatalf("indexer/schema: expected a JSON array body")
+	}
+}
+
+// Prowlarr reads X-Application-Version from POST /indexer/test; without it the
+// application test fails with "Failed to fetch Radarr version".
+func TestIndexerTestReturnsVersionHeader(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/api/v3/indexer/test", nil)
+	req.Header.Set("X-Api-Key", "secret")
+	rr := httptest.NewRecorder()
+	testServer().ServeHTTP(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("indexer/test: got %d, want 200", rr.Code)
+	}
+	if rr.Header().Get("X-Application-Version") == "" {
+		t.Fatal("indexer/test: missing X-Application-Version header")
+	}
+}
+
 func TestAPIKeyViaQueryParam(t *testing.T) {
 	// Use a DB-free endpoint; this asserts the auth middleware accepts the
 	// apikey query parameter. DB-backed endpoints are covered by the live
