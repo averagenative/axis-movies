@@ -8,6 +8,20 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type DownloadClient struct {
+	ID             int64
+	Name           string
+	Implementation string
+	ConfigContract string
+	Protocol       string
+	Priority       int32
+	Enable         bool
+	Fields         []byte
+	Tags           []byte
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+}
+
 type Indexer struct {
 	ID                      int64
 	Name                    string

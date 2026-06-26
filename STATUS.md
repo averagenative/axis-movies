@@ -1,6 +1,6 @@
 # Status — Axis Movies
 
-**Phase:** 4 (decision engine + indexer ingestion) — indexer sync working
+**Phase:** 5 (download clients + grab) — core loop closed
 **Updated:** 2026-06-26
 
 ## What works
@@ -40,9 +40,14 @@
   feed search + XML parse) + `internal/quality` (resolution+source scoring) behind
   `GET /api/v3/release?movieId=` — searches all enabled indexers, parses each
   result via `internal/parser`, ranks best-first. **Verified live**: 452 real
-  releases for Dune (2021) across 7 indexers, correctly parsed & ranked. Next:
-  River job queue (RSS/background), real quality profiles + custom formats, and
-  the grab endpoint (`POST /api/v3/release` → download client, Phase 5).
+  releases for Dune (2021) across 7 indexers, correctly parsed & ranked.
+- **Download clients + grab (Phase 5)**: `internal/download` (qBittorrent WebUI v2
+  + SABnzbd), download-client CRUD (`/api/v3/downloadclient`), and grab via
+  `POST /api/v3/release` (picks a client by protocol, sends the magnet/nzb).
+  **Verified live**: grab → real qBittorrent 5.x (torrent queued with category).
+  The core loop — add → sync indexers → search → grab → download — now works
+  end-to-end. Next: import pipeline (Phase 6), `/queue`, River jobs, real
+  quality profiles.
 - Docker (distroless static) + docker-compose (app + Postgres).
 - Local `make check` gate (gofmt, vet, race tests, build, golangci-lint v2 — 0 issues)
   + optional pre-push hook. No GitHub Actions by design.

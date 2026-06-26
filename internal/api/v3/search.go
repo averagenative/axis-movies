@@ -178,6 +178,30 @@ func fieldInts(fs []indexerField, name string) []int {
 	return nil
 }
 
+func fieldInt(fs []indexerField, name string) int {
+	for _, f := range fs {
+		if strings.EqualFold(f.Name, name) {
+			var n int
+			if json.Unmarshal(f.Value, &n) == nil {
+				return n
+			}
+		}
+	}
+	return 0
+}
+
+func fieldBool(fs []indexerField, name string) bool {
+	for _, f := range fs {
+		if strings.EqualFold(f.Name, name) {
+			var b bool
+			if json.Unmarshal(f.Value, &b) == nil {
+				return b
+			}
+		}
+	}
+	return false
+}
+
 func resolutionInt(res string) int {
 	switch res {
 	case "2160p":

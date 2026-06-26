@@ -205,3 +205,26 @@ Scoring is resolution+source weight only — no real quality profiles, cutoffs, 
 custom formats yet. No grab action (that needs a download client, Phase 5) and no
 RSS/background search (needs River). `t=search&q=Title Year` text query; could use
 `t=movie&imdbid=` for precision later.
+
+## 2026-06-26 — Phase 5: download clients + grab
+
+`internal/download` defines a `Client` interface (Add + TestConnection) with two
+implementations: qBittorrent (WebUI v2 — cookie login then torrents/add) and
+SABnzbd (HTTP API mode=addurl). Download clients are stored like indexers (CRUD +
+schema captured from real Radarr + test endpoint). `POST /api/v3/release` decodes
+the chosen release, picks the highest-priority enabled client matching the
+protocol, and sends the magnet/nzb.
+
+### Live test caught a real version difference
+Verified against a throwaway qBittorrent on blacksky. First attempt failed: my
+client expected the classic `200 "Ok."` login response, but **qBittorrent 5.x
+returns `204 No Content`** with the SID cookie. Fixed the login check to accept
+204 (added a regression test). Re-ran: grab → the magnet landed in qBittorrent as
+`queuedDL` with category `movies`. Used a fake-infohash magnet so nothing actually
+downloads, and never touched the user's real Deluge/SABnzbd.
+
+The core acquisition loop is now closed end-to-end: add movie → Prowlarr syncs
+indexers → search → parse+score → grab → download client. What's left to be a
+daily-driver: the import pipeline (Phase 6: detect completed download, hardlink/
+rename into the library), a `/queue` view, River for RSS/automatic search, and
+real quality profiles.

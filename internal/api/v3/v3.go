@@ -102,10 +102,18 @@ func (a *API) Mount(r chi.Router) {
 	r.Put("/indexer/{id}", a.updateIndexer)
 	r.Delete("/indexer/{id}", a.deleteIndexer)
 
-	r.Get("/downloadclient", a.emptyArray)
+	// Download clients (qBittorrent / SABnzbd).
+	r.Get("/downloadclient/schema", a.downloadClientSchema)
+	r.Post("/downloadclient/test", a.downloadClientTest)
+	r.Get("/downloadclient", a.listDownloadClients)
+	r.Post("/downloadclient", a.createDownloadClient)
+	r.Get("/downloadclient/{id}", a.getDownloadClient)
+	r.Put("/downloadclient/{id}", a.updateDownloadClient)
+	r.Delete("/downloadclient/{id}", a.deleteDownloadClient)
 
-	// Interactive release search across the synced indexers.
+	// Release search (GET) and grab (POST) across the synced indexers.
 	r.Get("/release", a.searchReleases)
+	r.Post("/release", a.grabRelease)
 }
 
 func (a *API) systemStatus(w http.ResponseWriter, _ *http.Request) {

@@ -57,12 +57,14 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [ ] [P] Upgrade-until / min-max size / age / preferred-words logic
 - [ ] [P] RSS sync job (needs River) + grab endpoint (`POST /api/v3/release`)
 
-## Phase 5 — Download clients + grab flow  `[ ]`
-- [ ] [S] Download-client interface
-- [ ] [P] qBittorrent client
-- [ ] [P] SABnzbd client
-- [ ] [P] v3 write endpoints: `/release` (grab), `/command` (search), `/queue`
-- [ ] [ ] Later: Transmission, Deluge, NZBGet, rTorrent
+## Phase 5 — Download clients + grab flow  `[~]`
+- [x] [S] Download-client interface (`internal/download`)
+- [x] [P] qBittorrent client (WebUI v2; handles qBittorrent 5.x `204` login)
+- [x] [P] SABnzbd client
+- [x] [P] Download-client CRUD + schema + test (`/api/v3/downloadclient`)
+- [x] [P] Grab endpoint `POST /api/v3/release` — picks a client by protocol and sends. **Verified live**: grab → real qBittorrent 5.x (torrent queued with category)
+- [ ] [P] `/queue` endpoint (show active downloads)
+- [ ] Later: Transmission, Deluge, NZBGet, rTorrent
 
 ## Phase 6 — Import pipeline  `[ ]`
 - [ ] [S] Completed-download handling + parse + match to movie
