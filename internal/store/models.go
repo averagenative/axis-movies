@@ -8,6 +8,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Indexer struct {
+	ID                      int64
+	Name                    string
+	Implementation          string
+	ConfigContract          string
+	Protocol                string
+	Priority                int32
+	EnableRss               bool
+	EnableAutomaticSearch   bool
+	EnableInteractiveSearch bool
+	Fields                  []byte
+	Tags                    []byte
+	CreatedAt               pgtype.Timestamptz
+	UpdatedAt               pgtype.Timestamptz
+}
+
 type Movie struct {
 	ID               int64
 	TmdbID           int64

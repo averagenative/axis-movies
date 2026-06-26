@@ -9,20 +9,25 @@ import (
 )
 
 type Querier interface {
+	CreateIndexer(ctx context.Context, arg CreateIndexerParams) (Indexer, error)
 	CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie, error)
 	CreateRootFolder(ctx context.Context, path string) (RootFolder, error)
 	CreateTag(ctx context.Context, label string) (Tag, error)
+	DeleteIndexer(ctx context.Context, id int64) error
 	DeleteRootFolder(ctx context.Context, id int64) error
 	DeleteTag(ctx context.Context, id int64) error
+	GetIndexer(ctx context.Context, id int64) (Indexer, error)
 	GetMovie(ctx context.Context, id int64) (Movie, error)
 	GetMovieByTMDB(ctx context.Context, tmdbID int64) (Movie, error)
 	GetQualityProfile(ctx context.Context, id int64) (QualityProfile, error)
 	GetRootFolder(ctx context.Context, id int64) (RootFolder, error)
 	GetTag(ctx context.Context, id int64) (Tag, error)
+	ListIndexers(ctx context.Context) ([]Indexer, error)
 	ListMovies(ctx context.Context) ([]Movie, error)
 	ListQualityProfiles(ctx context.Context) ([]QualityProfile, error)
 	ListRootFolders(ctx context.Context) ([]RootFolder, error)
 	ListTags(ctx context.Context) ([]Tag, error)
+	UpdateIndexer(ctx context.Context, arg UpdateIndexerParams) (Indexer, error)
 }
 
 var _ Querier = (*Queries)(nil)

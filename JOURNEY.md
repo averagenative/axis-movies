@@ -157,3 +157,26 @@ the real data exposed three bugs the corpus missed:
 Final: 2342 names, 1.2% anomalies, all benign (names genuinely lacking quality
 tags, or truly yearless). Lesson: synthetic corpus for breadth, real data for the
 long tail.
+
+## 2026-06-26 — Phase 4 (slice 1): indexer ingestion
+
+Indexers are stored in their own table (migration 0003) with the Radarr field
+array (baseUrl, apiKey, categories, ...) kept verbatim as JSONB. Added the full
+`/api/v3/indexer` CRUD (was previously a stub empty list): list, get, create,
+update, delete, alongside the existing schema/test handlers. Request decoding is
+lenient and derives protocol from implementation (Torznab→torrent, Newznab→usenet)
+when omitted.
+
+### Verified live against the real Prowlarr
+Deployed Axis on blacksky's `nginx-proxy` network, added it to the real Prowlarr
+as a Radarr application with `syncLevel: fullSync`, and triggered an
+`ApplicationIndexerSync`. Prowlarr pushed **7 movie-capable indexers** into Axis
+in ~1s (the 4 TV/book-only ones correctly skipped for a movie app), each with the
+right protocol and per-indexer Prowlarr feed URL. Then cleaned up: deleted the
+Prowlarr app and tore down the Axis containers, leaving the user's Prowlarr at its
+original 3 apps.
+
+### Next in Phase 4
+The synced indexers carry Torznab/Newznab feed URLs; the next slice queries them
+for releases, parses results via `internal/parser`, and scores them with the
+decision engine — driven by River jobs (RSS sync + manual search).

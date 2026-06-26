@@ -89,11 +89,16 @@ func (a *API) Mount(r chi.Router) {
 	r.Get("/qualityprofile", a.listQualityProfiles)
 	r.Get("/qualityprofile/{id}", a.getQualityProfile)
 
-	// Populated by Prowlarr (indexers) / configured later (download clients).
+	// Indexers — managed (pushed) by Prowlarr.
 	r.Get("/indexer/schema", a.indexerSchema)
 	r.Post("/indexer/test", a.indexerTest)
 	r.Post("/indexer/testall", a.indexerTest)
-	r.Get("/indexer", a.emptyArray)
+	r.Get("/indexer", a.listIndexers)
+	r.Post("/indexer", a.createIndexer)
+	r.Get("/indexer/{id}", a.getIndexer)
+	r.Put("/indexer/{id}", a.updateIndexer)
+	r.Delete("/indexer/{id}", a.deleteIndexer)
+
 	r.Get("/downloadclient", a.emptyArray)
 }
 

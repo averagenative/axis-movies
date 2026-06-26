@@ -1,6 +1,6 @@
 # Status — Axis Movies
 
-**Phase:** 3 (release parser) — parser done & corpus-validated
+**Phase:** 4 (decision engine + indexer ingestion) — indexer sync working
 **Updated:** 2026-06-26
 
 ## What works
@@ -33,6 +33,10 @@
   and foreign formats. Validated 99/99 against a 5-agent-generated corpus and
   audited against 2342 real Radarr release names (1.2% anomalies, all benign).
   Not yet wired into the import path (that's Phase 4/6).
+- **Indexer ingestion (Phase 4)**: DB-backed indexer CRUD
+  (`POST/GET/PUT/DELETE /api/v3/indexer`). A real Prowlarr `fullSync` pushed 7
+  movie-capable indexers into Axis end-to-end (verified live, then torn down).
+  Searching those indexers + the decision engine + River jobs are the next slice.
 - Docker (distroless static) + docker-compose (app + Postgres).
 - Local `make check` gate (gofmt, vet, race tests, build, golangci-lint v2 — 0 issues)
   + optional pre-push hook. No GitHub Actions by design.

@@ -48,9 +48,10 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [x] [P] Real-collection audit tool (`TestAuditCollection`, gated on `AXIS_COLLECTION_FILE`) — audited 2342 real Radarr names, 1.2% anomalies, all correct/informational
 - [ ] [P] Wire the parser into the import/decision path (Phase 4/6)
 
-## Phase 4 — Decision engine + indexer ingestion  `[ ]`
+## Phase 4 — Decision engine + indexer ingestion  `[~]`
+- [x] [S] Indexer persistence + CRUD (`POST/GET/PUT/DELETE /api/v3/indexer`) — Prowlarr `fullSync` pushes its indexers into Axis. **Verified live**: real Prowlarr synced 7 movie-capable indexers into Axis end-to-end.
 - [ ] [S] Wire **River** (Postgres-backed job queue); migrate scheduler onto it
-- [ ] [S] Torznab/Newznab feed consumer (config pushed by Prowlarr via v3 indexer endpoints)
+- [ ] [S] Torznab/Newznab feed consumer (query the synced indexers for releases; parse via `internal/parser`)
 - [ ] [P] Quality profile evaluation + custom-format scoring
 - [ ] [P] Upgrade-until / min-max size / age / preferred-words logic
 - [ ] [P] RSS sync job + manual search command
