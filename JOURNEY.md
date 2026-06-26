@@ -180,3 +180,28 @@ original 3 apps.
 The synced indexers carry Torznab/Newznab feed URLs; the next slice queries them
 for releases, parses results via `internal/parser`, and scores them with the
 decision engine — driven by River jobs (RSS sync + manual search).
+
+## 2026-06-26 — Phase 4 (slice 2): release search pipeline
+
+`internal/torznab` queries an indexer's Torznab/Newznab feed (as proxied by
+Prowlarr) and parses the RSS/XML into items (title, size, seeders, download/magnet
+URL). `internal/quality` maps a release's source+resolution to a Radarr-style
+quality name and a numeric weight. `GET /api/v3/release?movieId=` loads the movie,
+fans out concurrent searches across all enabled indexers, parses each result title
+with `internal/parser`, scores it, and returns releases ranked best-first
+(quality weight, then seeders). This is the first place the Phase-3 parser is
+actually used in the request path.
+
+### Verified live — 452 releases, real indexers
+Against the user's real Prowlarr: synced 7 indexers, inserted Dune (2021), and
+`GET /release` returned **452 real releases** across torrent + usenet, every one
+parsed and ranked correctly (top result a Remux-2160p with 105 seeders). The
+quality distribution (29 Remux-2160p, 141 Bluray-1080p, ...) confirmed the parser
+on 452 live names with ~2% unknown — consistent with the offline audit. A bonus
+real-world validation of Phase 3.
+
+### Still simplified
+Scoring is resolution+source weight only — no real quality profiles, cutoffs, or
+custom formats yet. No grab action (that needs a download client, Phase 5) and no
+RSS/background search (needs River). `t=search&q=Title Year` text query; could use
+`t=movie&imdbid=` for precision later.

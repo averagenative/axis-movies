@@ -20,6 +20,7 @@ import (
 	"github.com/averagenative/axis-movies/internal/config"
 	"github.com/averagenative/axis-movies/internal/store"
 	"github.com/averagenative/axis-movies/internal/tmdb"
+	"github.com/averagenative/axis-movies/internal/torznab"
 	"github.com/averagenative/axis-movies/internal/version"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
@@ -44,6 +45,7 @@ type API struct {
 	log  *slog.Logger
 	q    *store.Queries
 	tmdb *tmdb.Client
+	tz   *torznab.Client
 }
 
 // New constructs the API.
@@ -53,6 +55,7 @@ func New(deps Deps) *API {
 		log:  deps.Log,
 		q:    store.New(deps.Pool),
 		tmdb: tmdb.New(deps.Config.TMDBAPIKey, deps.Config.TMDBBaseURL, deps.Config.TMDBImageBaseURL, nil),
+		tz:   torznab.New(nil),
 	}
 }
 
@@ -100,6 +103,9 @@ func (a *API) Mount(r chi.Router) {
 	r.Delete("/indexer/{id}", a.deleteIndexer)
 
 	r.Get("/downloadclient", a.emptyArray)
+
+	// Interactive release search across the synced indexers.
+	r.Get("/release", a.searchReleases)
 }
 
 func (a *API) systemStatus(w http.ResponseWriter, _ *http.Request) {

@@ -50,11 +50,12 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 
 ## Phase 4 — Decision engine + indexer ingestion  `[~]`
 - [x] [S] Indexer persistence + CRUD (`POST/GET/PUT/DELETE /api/v3/indexer`) — Prowlarr `fullSync` pushes its indexers into Axis. **Verified live**: real Prowlarr synced 7 movie-capable indexers into Axis end-to-end.
+- [x] [S] Torznab/Newznab feed consumer (`internal/torznab`) — concurrent search of synced indexers, XML parse → items
+- [x] [S] Interactive search `GET /api/v3/release?movieId=` — parse each result via `internal/parser`, score via `internal/quality`, rank best-first. **Verified live**: 452 real releases for Dune (2021) across 7 indexers, correctly parsed & ranked.
 - [ ] [S] Wire **River** (Postgres-backed job queue); migrate scheduler onto it
-- [ ] [S] Torznab/Newznab feed consumer (query the synced indexers for releases; parse via `internal/parser`)
-- [ ] [P] Quality profile evaluation + custom-format scoring
+- [ ] [P] Quality profile evaluation + custom-format scoring (current scoring is resolution+source weight only)
 - [ ] [P] Upgrade-until / min-max size / age / preferred-words logic
-- [ ] [P] RSS sync job + manual search command
+- [ ] [P] RSS sync job (needs River) + grab endpoint (`POST /api/v3/release`)
 
 ## Phase 5 — Download clients + grab flow  `[ ]`
 - [ ] [S] Download-client interface

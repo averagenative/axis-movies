@@ -36,7 +36,13 @@
 - **Indexer ingestion (Phase 4)**: DB-backed indexer CRUD
   (`POST/GET/PUT/DELETE /api/v3/indexer`). A real Prowlarr `fullSync` pushed 7
   movie-capable indexers into Axis end-to-end (verified live, then torn down).
-  Searching those indexers + the decision engine + River jobs are the next slice.
+- **Release search (Phase 4)**: `internal/torznab` (concurrent Torznab/Newznab
+  feed search + XML parse) + `internal/quality` (resolution+source scoring) behind
+  `GET /api/v3/release?movieId=` — searches all enabled indexers, parses each
+  result via `internal/parser`, ranks best-first. **Verified live**: 452 real
+  releases for Dune (2021) across 7 indexers, correctly parsed & ranked. Next:
+  River job queue (RSS/background), real quality profiles + custom formats, and
+  the grab endpoint (`POST /api/v3/release` → download client, Phase 5).
 - Docker (distroless static) + docker-compose (app + Postgres).
 - Local `make check` gate (gofmt, vet, race tests, build, golangci-lint v2 — 0 issues)
   + optional pre-push hook. No GitHub Actions by design.
