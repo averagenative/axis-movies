@@ -40,11 +40,13 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [ ] [P] Refresh-movie metadata job (needs the job queue — Phase 4)
 - [ ] [P] Live verification against real TMDb (needs a real `AXIS_TMDB_API_KEY`)
 
-## Phase 3 — Release parser (crown jewels)  `[ ]`
-- [ ] [S] Clean-room parser: title, year, resolution, source, codec, audio, group, edition, proper/repack, language
-- [ ] [P] **Test corpus** (great sub-agent fan-out: harvest real release names, label expected fields)
-- [ ] [P] Property/regression tests vs corpus; quarantine ambiguous cases
-- [ ] [P] Scene/anime/repack edge-case coverage
+## Phase 3 — Release parser (crown jewels)  `[~]`
+- [x] [S] Clean-room parser (`internal/parser`): title, year, resolution, source, codec, proper/repack, group; best-effort audio/HDR/edition/language
+- [x] [P] **Test corpus** (`testdata/corpus.json`, 99 entries from a 5-agent fan-out: UHD/BluRay/REMUX, streaming WEB, older HDTV/DVDRip, edge cases, YTS/anime/foreign)
+- [x] [P] Property/regression test vs corpus (lenient title, exact fields) — 99/99
+- [x] [P] Scene/anime/repack/foreign edge-case coverage (YTS brackets, anime front-group, title-with-year, hyphen-years)
+- [x] [P] Real-collection audit tool (`TestAuditCollection`, gated on `AXIS_COLLECTION_FILE`) — audited 2342 real Radarr names, 1.2% anomalies, all correct/informational
+- [ ] [P] Wire the parser into the import/decision path (Phase 4/6)
 
 ## Phase 4 — Decision engine + indexer ingestion  `[ ]`
 - [ ] [S] Wire **River** (Postgres-backed job queue); migrate scheduler onto it

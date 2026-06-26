@@ -1,7 +1,7 @@
 # Status — Axis Movies
 
-**Phase:** 2 (TMDb metadata) — in progress (lookup + add working)
-**Updated:** 2026-06-25
+**Phase:** 3 (release parser) — parser done & corpus-validated
+**Updated:** 2026-06-26
 
 ## What works
 - Go service builds, runs, and shuts down gracefully.
@@ -25,8 +25,14 @@
 - **TMDb metadata (Phase 2)**: `internal/tmdb` client (own API key via
   `AXIS_TMDB_API_KEY`); `GET /api/v3/movie/lookup?term=` (search) and
   `POST /api/v3/movie` (add by tmdbId — fetches metadata, persists, 409 on dup).
-  Verified end-to-end against Postgres with a mock TMDb. Without a key,
-  lookup/add return 503.
+  Verified end-to-end against Postgres with a mock TMDb, and live against real
+  TMDb. Without a key, lookup/add return 503.
+- **Release parser (Phase 3)**: `internal/parser` clean-room parser extracting
+  title/year/resolution/source/codec/proper/repack/group (+ best-effort
+  audio/HDR/edition/language) across dotted-scene, YTS-bracket, anime front-group,
+  and foreign formats. Validated 99/99 against a 5-agent-generated corpus and
+  audited against 2342 real Radarr release names (1.2% anomalies, all benign).
+  Not yet wired into the import path (that's Phase 4/6).
 - Docker (distroless static) + docker-compose (app + Postgres).
 - Local `make check` gate (gofmt, vet, race tests, build, golangci-lint v2 — 0 issues)
   + optional pre-push hook. No GitHub Actions by design.
