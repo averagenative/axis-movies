@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	CreateDownloadClient(ctx context.Context, arg CreateDownloadClientParams) (DownloadClient, error)
+	CreateHistory(ctx context.Context, arg CreateHistoryParams) (History, error)
 	CreateIndexer(ctx context.Context, arg CreateIndexerParams) (Indexer, error)
 	CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie, error)
 	CreateRootFolder(ctx context.Context, path string) (RootFolder, error)
@@ -22,17 +23,21 @@ type Querier interface {
 	GetIndexer(ctx context.Context, id int64) (Indexer, error)
 	GetMovie(ctx context.Context, id int64) (Movie, error)
 	GetMovieByTMDB(ctx context.Context, tmdbID int64) (Movie, error)
+	GetMovieFile(ctx context.Context, movieID int64) (MovieFile, error)
 	GetQualityProfile(ctx context.Context, id int64) (QualityProfile, error)
 	GetRootFolder(ctx context.Context, id int64) (RootFolder, error)
 	GetTag(ctx context.Context, id int64) (Tag, error)
 	ListDownloadClients(ctx context.Context) ([]DownloadClient, error)
+	ListHistory(ctx context.Context, limit int32) ([]History, error)
 	ListIndexers(ctx context.Context) ([]Indexer, error)
 	ListMovies(ctx context.Context) ([]Movie, error)
 	ListQualityProfiles(ctx context.Context) ([]QualityProfile, error)
 	ListRootFolders(ctx context.Context) ([]RootFolder, error)
 	ListTags(ctx context.Context) ([]Tag, error)
+	SetMovieImported(ctx context.Context, arg SetMovieImportedParams) error
 	UpdateDownloadClient(ctx context.Context, arg UpdateDownloadClientParams) (DownloadClient, error)
 	UpdateIndexer(ctx context.Context, arg UpdateIndexerParams) (Indexer, error)
+	UpsertMovieFile(ctx context.Context, arg UpsertMovieFileParams) (MovieFile, error)
 }
 
 var _ Querier = (*Queries)(nil)

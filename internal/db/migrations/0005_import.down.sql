@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS history;
+DROP TABLE IF EXISTS movie_file;

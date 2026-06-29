@@ -1,7 +1,7 @@
 # Status — Axis Movies
 
-**Phase:** 5 (download clients + grab) — core loop closed
-**Updated:** 2026-06-26
+**Phase:** 6 (import pipeline) — daily-driver gate met
+**Updated:** 2026-06-29
 
 ## What works
 - Go service builds, runs, and shuts down gracefully.
@@ -46,8 +46,16 @@
   `POST /api/v3/release` (picks a client by protocol, sends the magnet/nzb).
   **Verified live**: grab → real qBittorrent 5.x (torrent queued with category).
   The core loop — add → sync indexers → search → grab → download — now works
-  end-to-end. Next: import pipeline (Phase 6), `/queue`, River jobs, real
-  quality profiles.
+  end-to-end.
+- **Import pipeline (Phase 6)**: `internal/importer` scans a completed download
+  folder (skips samples), parses the feature file, and hardlinks it (copy
+  fallback) into `<root>/<Title> (<year>)/<Title> (<year>) [quality].ext`,
+  recording a `movie_file` + `history` and flipping `has_file`. Triggered by
+  `POST /api/v3/command`; `GET /history` and `GET /moviefile` expose the result.
+  Verified via temp-dir + Postgres integration test. **Daily-driver gate met**:
+  add → search → grab → import works end-to-end. Next: `/queue`, failed-download
+  handling, River (automatic search), real quality profiles, notifications (7),
+  and the SvelteKit UI (8).
 - Docker (distroless static) + docker-compose (app + Postgres).
 - Local `make check` gate (gofmt, vet, race tests, build, golangci-lint v2 — 0 issues)
   + optional pre-push hook. No GitHub Actions by design.

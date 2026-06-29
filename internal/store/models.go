@@ -22,6 +22,16 @@ type DownloadClient struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type History struct {
+	ID          int64
+	MovieID     pgtype.Int8
+	EventType   string
+	SourceTitle string
+	Quality     string
+	Data        []byte
+	Date        pgtype.Timestamptz
+}
+
 type Indexer struct {
 	ID                      int64
 	Name                    string
@@ -57,6 +67,16 @@ type Movie struct {
 	Images           []byte
 	QualityProfileID pgtype.Int8
 	UpdatedAt        pgtype.Timestamptz
+}
+
+type MovieFile struct {
+	ID           int64
+	MovieID      int64
+	RelativePath string
+	Path         string
+	Size         int64
+	Quality      string
+	DateAdded    pgtype.Timestamptz
 }
 
 type QualityProfile struct {

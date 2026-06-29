@@ -114,6 +114,11 @@ func (a *API) Mount(r chi.Router) {
 	// Release search (GET) and grab (POST) across the synced indexers.
 	r.Get("/release", a.searchReleases)
 	r.Post("/release", a.grabRelease)
+
+	// Import pipeline + activity.
+	r.Post("/command", a.runCommand)
+	r.Get("/history", a.listHistory)
+	r.Get("/moviefile", a.listMovieFiles)
 }
 
 func (a *API) systemStatus(w http.ResponseWriter, _ *http.Request) {

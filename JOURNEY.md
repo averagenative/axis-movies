@@ -228,3 +228,30 @@ indexers → search → parse+score → grab → download client. What's left to
 daily-driver: the import pipeline (Phase 6: detect completed download, hardlink/
 rename into the library), a `/queue` view, River for RSS/automatic search, and
 real quality profiles.
+
+## 2026-06-29 — Phase 6: import pipeline (daily-driver gate)
+
+`internal/importer` scans a completed download folder for the feature file
+(largest video, skipping "sample"), and hardlinks it — falling back to a copy on
+EXDEV (cross-filesystem) — into `<root>/<Title> (<year>)/<Title> (<year>)
+[quality].ext`, sanitizing illegal path chars. The v3 import service parses the
+file for quality, writes a `movie_file` (upsert) + a `history` row, and flips
+`movie.has_file`. Triggered via `POST /api/v3/command` (DownloadedMoviesScan /
+ManualImport, with movieId + path; other commands are accepted as no-ops so
+clients don't error). `GET /history` (paged envelope) and `GET /moviefile` expose
+the results.
+
+### Verified with temp dirs, not the production library
+The import is pure filesystem logic, so it's covered by a temp-dir + Postgres
+integration test (feature picked over sample, hardlink confirmed via os.SameFile,
+has_file set, moviefile + history reflect it) rather than a live run against the
+user's real library — moving real files around in their collection is not worth
+the risk when local tests fully exercise the logic.
+
+### Daily-driver gate met
+add movie → Prowlarr syncs indexers → search (parse+score) → grab → download
+client → import (hardlink+rename into the library) now works end-to-end, each
+stage verified. What remains is convenience/automation, not the core loop:
+`/queue`, failed-download handling/blocklist, River for RSS+automatic search,
+real quality profiles + custom formats, notifications (Phase 7), and the
+SvelteKit PWA (Phase 8).

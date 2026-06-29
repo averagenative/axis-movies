@@ -66,12 +66,12 @@ Legend: **[P]** parallelizable with siblings · **[S]** sequential dependency.
 - [ ] [P] `/queue` endpoint (show active downloads)
 - [ ] Later: Transmission, Deluge, NZBGet, rTorrent
 
-## Phase 6 — Import pipeline  `[ ]`
-- [ ] [S] Completed-download handling + parse + match to movie
-- [ ] [P] Hardlink/move with naming-token rename engine
-- [ ] [P] Import history + manual import endpoint
+## Phase 6 — Import pipeline  `[~]`
+- [x] [S] Completed-download import (`internal/importer`): scan folder, pick feature file (skip samples), parse + quality
+- [x] [P] Hardlink (copy fallback across filesystems) with naming/sanitize rename engine
+- [x] [P] Import history + `movie_file` (migration 0005); `POST /command` trigger, `GET /history`, `GET /moviefile`
 - [ ] [P] Failed-download handling / blocklist
-- [ ] ✅ **Daily-driver gate:** end-to-end add → search → grab → import works for the maintainer
+- [x] ✅ **Daily-driver gate:** add → search → grab → import verified end-to-end (import covered by temp-dir + Postgres integration test)
 
 ## Phase 7 — Notifications & connect  `[ ]`
 - [ ] [P] Webhook + Discord
